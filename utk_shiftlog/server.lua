@@ -12,6 +12,7 @@ local timers = { -- if you want more job shifts add table entry here same as the
 local dcname = "Shift Logger" -- bot's name
 local http = "" -- webhook for police
 local http2 = "" -- webhook for ems (you can add as many as you want)
+local http3 = "" -- webhook for mechanic (you can add as many as you want)
 local avatar = "" -- bot's avatar
 
 function DiscordLog(name, message, color, job)
@@ -29,6 +30,8 @@ function DiscordLog(name, message, color, job)
         PerformHttpRequest(http, function(err, text, headers) end, 'POST', json.encode({username = dcname, embeds = connect, avatar_url = avatar}), { ['Content-Type'] = 'application/json' })
     elseif job == "ambulance" then
         PerformHttpRequest(http2, function(err, text, headers) end, 'POST', json.encode({username = dcname, embeds = connect, avatar_url = avatar}), { ['Content-Type'] = 'application/json' })
+     elseif job == "mechanic" then
+        PerformHttpRequest(http3, function(err, text, headers) end, 'POST', json.encode({username = dcname, embeds = connect, avatar_url = avatar}), { ['Content-Type'] = 'application/json' })
     end
 end
 
@@ -52,9 +55,9 @@ AddEventHandler("utk_sl:jobchanged", function(old, new, method)
     elseif old == "ambulance" then
         header = "EMS Shift"
         color = 15158332
-    --elseif job == "fbi" then
-        --header = "FBI Shift"
-        --color = 3447003
+    elseif job == "mechanic" then
+        header = "mechanic Shift"
+        color = 3447003
     end
     if method == 1 then
         for i = 1, #timers[old], 1 do
@@ -83,7 +86,7 @@ AddEventHandler("utk_sl:jobchanged", function(old, new, method)
             end
         end
     end
-    if new == "police" or new == "ambulance" then
+    if new == "police" or new == "ambulance" or new == "mechanic" then
         table.insert(timers[new], {id = xPlayer.source, identifier = xPlayer.identifier, name = xPlayer.name, time = os.time(), date = os.date("%d/%m/%Y %X")})
     end
 end)
@@ -106,6 +109,9 @@ AddEventHandler("playerDropped", function(reason)
                 elseif k == "ambulance" then
                     header = "EMS Shift"
                     color = 15158332
+                elseif job == "mechanic" then
+                header = "mechanic Shift"
+                color = 3447003
                 end
                 if duration > 0 and duration < 60 then
                     timetext = tostring(math.floor(duration)).." seconds"
